@@ -186,7 +186,7 @@ export class McpsManageDashboardElement extends UmbLitElement {
                 var dt = value.selection[0]!.toString();
                 this.#datatypeRepository.requestByUnique(dt)
                     .then((value2) => {
-                        this._selectedDatatype = value2.data?.editorAlias
+                        this._selectedDatatype = value2.data?.name
                     })
                     .catch(() => undefined)
             })

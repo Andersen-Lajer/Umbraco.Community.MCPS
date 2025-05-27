@@ -12,7 +12,7 @@ const a = [
     name: "Umbraco Community Mcps Manage Dashboard",
     alias: "Umbraco.Community.Mcps.Manage.Dashboard",
     type: "dashboard",
-    js: () => import("./mcps-manage-dashboard.element-n4md31BC.js"),
+    js: () => import("./mcps-manage-dashboard.element-DljB8y5V.js"),
     meta: {
       label: "Manage Dashboard",
       pathname: "manage-dashboard"

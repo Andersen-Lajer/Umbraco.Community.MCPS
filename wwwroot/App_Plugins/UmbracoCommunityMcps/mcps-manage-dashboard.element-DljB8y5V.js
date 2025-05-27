@@ -141,7 +141,7 @@ let a = class extends v {
       var s = o.selection[0].toString();
       m(this, y).requestByUnique(s).then((i) => {
         var p;
-        this._selectedDatatype = (p = i.data) == null ? void 0 : p.editorAlias;
+        this._selectedDatatype = (p = i.data) == null ? void 0 : p.name;
       }).catch(() => {
       });
     }).catch(() => {
@@ -340,4 +340,4 @@ export {
   a as McpsManageDashboardElement,
   N as default
 };
-//# sourceMappingURL=mcps-manage-dashboard.element-n4md31BC.js.map
+//# sourceMappingURL=mcps-manage-dashboard.element-DljB8y5V.js.map

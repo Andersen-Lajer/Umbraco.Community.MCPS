@@ -87,7 +87,10 @@ public class DataTypeApiController
 
             var block = await _mcpsDataTypeService.CreateMcpsContentType(userId, null, blockNames.name, blockNames.contentAlias, blockNames.containerName, compositions);
 
-            var filePath = Path.Combine(_env.ContentRootPath, "Views", "Partials", "Blocks", char.ToUpper(block.Alias[0]) + block.Alias[1..] + ".cshtml");
+            var blocksDirectory = Path.Combine(_env.ContentRootPath, "Views", "Partials", "McpsBlocks");
+            Directory.CreateDirectory(blocksDirectory);
+
+            var filePath = Path.Combine(blocksDirectory, char.ToUpper(block.Alias[0]) + block.Alias[1..] + ".cshtml");
             try
             {
                 using (FileStream fs = System.IO.File.Create(filePath))
@@ -100,7 +103,7 @@ public class DataTypeApiController
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Failed to create file", ex.Message);
-                throw new Exception("Error in CreateMcpsContentType", ex);
+                //throw new Exception("Error in CreateMcpsContentType", ex);
             }
 
             foreach (var contentType in propagationSetting.ContentTypes)

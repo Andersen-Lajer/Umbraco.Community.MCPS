@@ -3,7 +3,7 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	  <VersionPrefix>0.0.2</VersionPrefix>
+	  <VersionPrefix>0.1.0</VersionPrefix>
     <StaticWebAssetBasePath>/</StaticWebAssetBasePath>
   </PropertyGroup>
 
@@ -32,6 +32,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Client\scripts\" />
+    <Folder Include="Client\src\api\" />
+    <Folder Include="Client\src\entrypoints\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

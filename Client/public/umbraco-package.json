@@ -1,0 +1,14 @@
+{
+  "id": "Umbraco.Community.Mcps",
+  "name": "Umbraco.Community.Mcps",
+  "version": "0.0.0",
+  "allowTelemetry": true,
+  "extensions": [
+    {
+      "name": "Umbraco Community Mcps Bundle",
+      "alias": "Umbraco.Community.Mcps.Bundle",
+      "type": "bundle",
+      "js": "/App_Plugins/UmbracoCommunityMcps/umbraco-community-mcps.js"
+    }
+  ]
+}

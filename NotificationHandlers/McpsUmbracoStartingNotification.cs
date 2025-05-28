@@ -14,7 +14,6 @@ namespace Umbraco.Community.MCPS.NotificationHandlers;
 public class McpsUmbracoStartingNotification(
     ILogger<UmbracoApplicationStartedNotification> _logger,
     IShortStringHelper _shortStringHelper,
-    ICompositionConfigurationService compositionSvc,
     IDataTypeService dataTypeService,
     IMcpsDataTypeService _mcpsDataTypeService,
     IUserService userService,
@@ -27,53 +26,38 @@ public class McpsUmbracoStartingNotification(
         // NOTE: Consider what user GUID should be used here
         Guid userId = new();
 
-        if (!string.IsNullOrWhiteSpace(umbracodatabaseFactory.ConnectionString) && userService.GetByUsername("admin@admin.dk") is IMembershipUser dummyAdminUser)
+        if (!string.IsNullOrWhiteSpace(umbracodatabaseFactory.ConnectionString) && userService.GetUserById(-1) is IMembershipUser adminUser)
         {
-            userId = dummyAdminUser.Key;
-        }
+            userId = adminUser.Key;
 
-        try
-        {
-            var dropdownConfig = new Dictionary<string, object>
+            try
             {
-                { "items", new List<string>
-                    {
-                        {"Tomat" },
-                        {"Ost" },
-                        {"Kage" }
-                    }
-                },
-            { "multiple", false }
-            };
+                var dropdownConfig = new Dictionary<string, object>
+                {
+                    { "items", new List<string>
+                        {
+                            {"Tomat" },
+                            {"Ost" },
+                            {"Kage" }
+                        }
+                    },
+                    { "multiple", false }
+                };
 
-            var dt = await _mcpsDataTypeService.CreateMcpsDataType("Food", "Dropdown", dropdownConfig, userId);
+                var dt = await _mcpsDataTypeService.CreateMcpsDataType("Food", "Dropdown", dropdownConfig, userId);
 
-            //ContentType newCT = new(_shortStringHelper, -1) { Alias = ConstStrings.CamelPrefix + "DropdownComposition", Icon = "icon-clothes-hanger color-deep-purple" };
-            //newCT.Name = ConstStrings.PascalPrefix + " Dropdown Composition";
-            //newCT.IsElement = true;
+                var stringLabelDataType = await dataTypeService.GetAsync("Label (string)");
+                if (stringLabelDataType is not null)
+                {
+                    var dataPropertyType = new PropertyType(_shortStringHelper, stringLabelDataType) { Alias = ConstStrings.ReferenceIdAlias, Name = ConstStrings.ReferenceIdName };
+                    var contentComposition = await _mcpsDataTypeService.CreateMcpsContentType(userId, dataPropertyType, ConstStrings.PascalPrefix + " " + ConstStrings.ReferenceIdName, ConstStrings.CamelPrefix + ConstStrings.ReferenceIdAlias, ConstStrings.CompositionContainerName, null);
+                }
 
-            //PropertyGroup pg = new(false) { Alias = "content", Name = "Content", Type = PropertyGroupType.Tab };
-
-            //if (pg.PropertyTypes is not null)
-            //{
-            //    if (dt is not null) { pg.PropertyTypes.Add(new PropertyType(_shortStringHelper, dt) { Alias = ConstStrings.CamelPrefix + "Dropdown", Name = ConstStrings.PascalPrefix + "Dropdown" }); }
-
-            //    newCT.PropertyGroups.Add(pg);
-            //    compositionSvc.CreateComposition(newCT, userId);
-            //}
-
-            var stringLabelDataType = await dataTypeService.GetAsync("Label (string)");
-            if (stringLabelDataType is not null)
-            {
-
-                var dataPropertyType = new PropertyType(_shortStringHelper, stringLabelDataType) { Alias = ConstStrings.ReferenceIdAlias, Name = ConstStrings.ReferenceIdName };
-                var contentComposition = await _mcpsDataTypeService.CreateMcpsContentType(userId, dataPropertyType, ConstStrings.PascalPrefix + " " + ConstStrings.ReferenceIdName, ConstStrings.CamelPrefix + ConstStrings.ReferenceIdAlias, ConstStrings.CompositionContainerName, null);
             }
-
-        }
-        catch (Exception e)
-        {
-            _logger.LogError(e.Message);
+            catch (Exception e)
+            {
+                _logger.LogError(e.Message);
+            }
         }
     }
 }

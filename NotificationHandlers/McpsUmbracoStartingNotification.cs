@@ -38,29 +38,29 @@ public class McpsUmbracoStartingNotification(
             {
                 { "items", new List<string>
                     {
-                        {"Option 1" },
-                        {"Option 2" },
-                        {"Option 3" }
+                        {"Tomat" },
+                        {"Ost" },
+                        {"Kage" }
                     }
                 },
             { "multiple", false }
             };
 
-            var dt = await _mcpsDataTypeService.CreateMcpsDataType("Dropdown", dropdownConfig, userId);
+            var dt = await _mcpsDataTypeService.CreateMcpsDataType("Food", "Dropdown", dropdownConfig, userId);
 
-            ContentType newCT = new(_shortStringHelper, -1) { Alias = ConstStrings.CamelPrefix + "DropdownComposition", Icon = "icon-clothes-hanger color-deep-purple" };
-            newCT.Name = ConstStrings.PascalPrefix + " Dropdown Composition";
-            newCT.IsElement = true;
+            //ContentType newCT = new(_shortStringHelper, -1) { Alias = ConstStrings.CamelPrefix + "DropdownComposition", Icon = "icon-clothes-hanger color-deep-purple" };
+            //newCT.Name = ConstStrings.PascalPrefix + " Dropdown Composition";
+            //newCT.IsElement = true;
 
-            PropertyGroup pg = new(false) { Alias = "content", Name = "Content", Type = PropertyGroupType.Tab };
+            //PropertyGroup pg = new(false) { Alias = "content", Name = "Content", Type = PropertyGroupType.Tab };
 
-            if (pg.PropertyTypes is not null)
-            {
-                if (dt is not null) { pg.PropertyTypes.Add(new PropertyType(_shortStringHelper, dt) { Alias = ConstStrings.CamelPrefix + "Dropdown", Name = ConstStrings.PascalPrefix + "Dropdown" }); }
+            //if (pg.PropertyTypes is not null)
+            //{
+            //    if (dt is not null) { pg.PropertyTypes.Add(new PropertyType(_shortStringHelper, dt) { Alias = ConstStrings.CamelPrefix + "Dropdown", Name = ConstStrings.PascalPrefix + "Dropdown" }); }
 
-                newCT.PropertyGroups.Add(pg);
-                compositionSvc.CreateComposition(newCT, userId);
-            }
+            //    newCT.PropertyGroups.Add(pg);
+            //    compositionSvc.CreateComposition(newCT, userId);
+            //}
 
             var stringLabelDataType = await dataTypeService.GetAsync("Label (string)");
             if (stringLabelDataType is not null)

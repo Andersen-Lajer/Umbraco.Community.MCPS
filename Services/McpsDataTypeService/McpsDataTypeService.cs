@@ -20,9 +20,14 @@ class McpsDataTypeService(
     IShortStringHelper _shortStringHelper
     ) : IMcpsDataTypeService
 {
-    public async Task<IDataType> CreateMcpsDataType(string dataTypeName, Dictionary<string, object> configurationData, Guid userId)
+    public async Task<IDataType> CreateMcpsDataType(string? dataTypePrefix, string dataTypeName, Dictionary<string, object> configurationData, Guid userId)
     {
-        var mcpsDatatypeName = $"Mcps {dataTypeName}";
+        var mcpsDatatypeName = "Mcps ";
+        if (dataTypePrefix is not null)
+        {
+            mcpsDatatypeName = mcpsDatatypeName + dataTypePrefix + " ";
+        }
+        mcpsDatatypeName = mcpsDatatypeName + dataTypeName;
 
         var mcpsDataType = await dataTypeService.GetAsync(mcpsDatatypeName);
         if (mcpsDataType is not null)

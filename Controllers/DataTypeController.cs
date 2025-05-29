@@ -74,7 +74,7 @@ public class DataTypeApiController(
             var blocksDirectory = Path.Combine(env.ContentRootPath, "Views", "Partials", "McpsBlocks");
             Directory.CreateDirectory(blocksDirectory);
 
-            var filePath = Path.Combine(blocksDirectory, char.ToUpper(block.Alias[0]) + block.Alias[1..] + ".cshtml");
+            var filePath = Path.Combine(blocksDirectory, block.Alias + ".cshtml");
             try
             {
                 using FileStream fs = System.IO.File.Create(filePath);

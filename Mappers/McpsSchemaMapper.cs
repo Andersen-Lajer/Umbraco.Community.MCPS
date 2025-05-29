@@ -23,5 +23,4 @@ public class McpsSchemaMapper()
         }
         return schema;
     }
-
 }

@@ -1,6 +1,6 @@
 import { UmbLitElement as v } from "@umbraco-cms/backoffice/lit-element";
-import { html as d, css as b, state as n, query as D, customElement as T } from "@umbraco-cms/backoffice/external/lit";
-import { UMB_CURRENT_USER_CONTEXT as w } from "@umbraco-cms/backoffice/current-user";
+import { html as d, css as b, state as n, query as w, customElement as D } from "@umbraco-cms/backoffice/external/lit";
+import { UMB_CURRENT_USER_CONTEXT as T } from "@umbraco-cms/backoffice/current-user";
 import { UmbDataTypeDetailRepository as P, UMB_DATA_TYPE_PICKER_MODAL as C } from "@umbraco-cms/backoffice/data-type";
 import { UMB_MODAL_MANAGER_CONTEXT as S } from "@umbraco-cms/backoffice/modal";
 var c = /* @__PURE__ */ ((t) => (t.Relevant = "Relevant", t.Newest = "Newest", t.MostPopular = "MostPopular", t))(c || {}), u = /* @__PURE__ */ ((t) => (t.UniquePage = "UniquePage", t.AllowDuplicates = "AllowDuplicates", t))(u || {});
@@ -54,7 +54,7 @@ let a = class extends v {
       } catch (o) {
         console.error("Unexpected error in _createDatatype:", o);
       }
-    }, this.consumeContext(w, (t) => {
+    }, this.consumeContext(T, (t) => {
       this._observeCurrentUser(t);
     }), this.consumeContext(S, (t) => {
       E(this, l, t);
@@ -73,7 +73,7 @@ let a = class extends v {
       const t = await fetch("/mcps/api/documenttypes/all");
       if (t.ok) {
         const e = await t.json();
-        console.log("Document Types:", e), this._filteredDocumentTypes = e.filter((o) => {
+        this._filteredDocumentTypes = e.filter((o) => {
           var s;
           return (s = o.alias) == null ? void 0 : s.toLowerCase().startsWith("mcps");
         }).map((o) => {
@@ -85,7 +85,7 @@ let a = class extends v {
               name: i.name
             }))) ?? []
           };
-        }), console.log("Filtered Document Types:", this._filteredDocumentTypes);
+        });
       } else
         console.error("Failed to fetch document types:", t.statusText);
     } catch (t) {
@@ -137,7 +137,7 @@ let a = class extends v {
       }
     });
     t == null || t.onSubmit().then((o) => {
-      console.log(o.selection), this._dataTypeId = o.selection[0].toString();
+      this._dataTypeId = o.selection[0].toString();
       var s = o.selection[0].toString();
       m(this, y).requestByUnique(s).then((i) => {
         var p;
@@ -330,14 +330,14 @@ r([
   n()
 ], a.prototype, "_toastOpen", 2);
 r([
-  D("umb-property-editor-ui-document-type-picker")
+  w("umb-property-editor-ui-document-type-picker")
 ], a.prototype, "_docTypePickerElement", 2);
 a = r([
-  T("mcps-manage-dashboard-element")
+  D("mcps-manage-dashboard-element")
 ], a);
 const N = a;
 export {
   a as McpsManageDashboardElement,
   N as default
 };
-//# sourceMappingURL=mcps-manage-dashboard.element-DljB8y5V.js.map
+//# sourceMappingURL=mcps-manage-dashboard.element-D5Kv5_fO.js.map

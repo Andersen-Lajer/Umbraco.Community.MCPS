@@ -11,13 +11,18 @@ public class CompositionConfigurationService(IContentTypeService contentTypeServ
     {
         try
         {
-            Console.WriteLine("Started comp service");
+            logger.LogInformation("Started comp service");
 
             var container = contentTypeService.GetContainers("McpsCompositions", 1)?.FirstOrDefault();
 
             if (container is null)
             {
                 var attempt = contentTypeService.CreateContainer(-1, Guid.NewGuid(), "McpsCompositions");
+                if (attempt.Result is null || attempt.Result.Entity is null)
+                {
+                    logger.LogError("Failed to create container for compositions");
+                    return false;
+                }
                 container = attempt.Result.Entity;
                 contentTypeService.SaveContainer(container);
             }
@@ -34,23 +39,14 @@ public class CompositionConfigurationService(IContentTypeService contentTypeServ
             {
                 returnCT = contentType;
             }
-
-            // NOTE: Consider what user GUID should be used here + Change to CreateAsync
             contentTypeService.CreateAsync(returnCT, userId);
 
-            Console.WriteLine("comp service finished");
             return true;
         }
         catch (Exception ex)
         {
-            Console.WriteLine(ex.ToString());
             logger.LogError(ex, "Error in CreateComposition");
             return false;
         }
-    }
-
-    public bool DeleteComposition()
-    {
-        throw new NotImplementedException();
     }
 }

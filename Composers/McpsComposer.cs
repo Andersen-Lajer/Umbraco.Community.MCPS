@@ -4,8 +4,6 @@ using Umbraco.Cms.Core.Notifications;
 using Umbraco.Community.MCPS.Services;
 using Umbraco.Community.MCPS.NotificationHandlers;
 using Umbraco.Community.MCPS.Repositories;
-using Umbraco.Community.MCPS.Services.McpsRelationService;
-using Umbraco.Community.MCPS.Services.McpsPropagationSettingService;
 using System.Text.Json.Serialization;
 using Umbraco.Cms.Core.DependencyInjection;
 

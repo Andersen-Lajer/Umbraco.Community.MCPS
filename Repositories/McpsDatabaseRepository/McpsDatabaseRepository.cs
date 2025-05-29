@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Text.Json;
 using Umbraco.Cms.Infrastructure.Scoping;
 using Umbraco.Community.MCPS.Models;
 using Umbraco.Community.MCPS.Models.Schemas;
@@ -7,9 +6,8 @@ using Umbraco.Community.MCPS.Mappers;
 
 namespace Umbraco.Community.MCPS.Repositories;
 
-public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDatabaseRepository> _logger) : IMcpsDatabaseRepository
+public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDatabaseRepository> logger) : IMcpsDatabaseRepository
 {
-    // Public PropagationRelation
     public int? CreatePropagationRelation(PropagationRelationsSchema relation)
     {
         using var scope = scopeProvider.CreateScope();
@@ -35,9 +33,9 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
             }
 
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e, "Error in CreatePropagationRelation");
+            logger.LogError(ex, "Error in CreatePropagationRelation");
             return -1;
         }
         scope.Complete();
@@ -69,10 +67,10 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
             return true;
 
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
 
-            _logger.LogError(e, "Error in UpdatePropagationRelations");
+            logger.LogError(ex, "Error in UpdatePropagationRelations");
             scope.Complete();
             return false;
         }
@@ -108,7 +106,7 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
 
             if (queryResult is not null && queryResult.ReferenceId is Guid referenceId)
             {
-                _logger.LogInformation("Source: @0 - Target: @1", [queryResult.PageId, referenceId]);
+                logger.LogInformation("Source: @0 - Target: @1", [queryResult.PageId, referenceId]);
                 return referenceId;
             }
             else
@@ -117,9 +115,9 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
             }
 
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e.Message);
+            logger.LogError(ex, "Error in GetTargetGuid");
             throw;
         }
     }
@@ -135,16 +133,13 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
             scope.Complete();
             return relations;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e, e.Message);
+            logger.LogError(ex, "Error in GetPropagationRelations");
             scope.Complete();
             throw;
         }
     }
-
-
-    // Public PropagationSetting
     public PropagationSettingSchema CreatePropagationSetting(PropagationSetting propagationSetting)
     {
         using var scope = scopeProvider.CreateScope();
@@ -179,9 +174,9 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
             else throw new Exception("Error in CreatePropagationSetting");
 
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e, "Error in CreatePropagationSetting");
+            logger.LogError(ex, "Error in CreatePropagationSetting");
             scope.Complete();
             throw;
         }
@@ -214,9 +209,9 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
             else throw new Exception("Error in CreatePropagationSetting");
 
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e, "Error in CreatePropagationSetting");
+            logger.LogError(ex, "Error in CreatePropagationSetting");
             scope.Complete();
             throw;
         }
@@ -236,13 +231,13 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
             }
             else
             {
-                _logger.LogInformation($"PropagationSetting for ID: {propertySettingId} not found");
+                logger.LogInformation($"PropagationSetting for ID: {propertySettingId} not found");
                 throw new Exception("Error in GetPropertySetting");
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e.Message);
+            logger.LogError(ex, "Error in GetPropagationSetting");
             scope.Complete();
             throw;
         }
@@ -262,13 +257,13 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
             }
             else
             {
-                _logger.LogInformation($"PropagationSetting for Name: {propagationSettingName} not found");
+                logger.LogInformation($"PropagationSetting for Name: {propagationSettingName} not found");
                 throw new Exception("Error in GetPropertySetting");
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e.Message);
+            logger.LogError(ex, "Error in GetPropagationSetting");
             scope.Complete();
             throw;
         }
@@ -280,7 +275,7 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
         var db = scope.Database;
         try
         {
-            var returnValue = db.Fetch<PropagationSettingSchema>("SELECT * FROM McpsPropagationSettings WHERE ContentTypes LIKE @0", "%"+documentType+"%");
+            var returnValue = db.Fetch<PropagationSettingSchema>("SELECT * FROM McpsPropagationSettings WHERE ContentTypes LIKE @0", "%" + documentType + "%");
             scope.Complete();
             if (returnValue is not null)
             {
@@ -288,13 +283,13 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
             }
             else
             {
-                _logger.LogInformation($"PropagationSettings for Name: {documentType} not found");
+                logger.LogInformation($"PropagationSettings for Name: {documentType} not found");
                 throw new Exception("Error in GetPropagationSettingsByDocumentType");
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e.Message);
+            logger.LogError(ex, "Error in GetPropagationSettingsByDocumentType");
             scope.Complete();
             throw;
         }
@@ -317,12 +312,11 @@ public class McpsDatabaseRepository(IScopeProvider scopeProvider, ILogger<McpsDa
                 throw new Exception("Error in GetPropagationSettingsByDocumentType");
             }
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            Console.WriteLine(e.Message);
+            logger.LogError(ex, "Error in GetAllPropagationSettings");
             scope.Complete();
             throw;
         }
     }
-
 }

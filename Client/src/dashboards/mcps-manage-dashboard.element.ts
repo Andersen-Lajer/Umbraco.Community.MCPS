@@ -84,7 +84,6 @@ export class McpsManageDashboardElement extends UmbLitElement {
             const response = await fetch('/mcps/api/documenttypes/all');
             if (response.ok) {
                 const documentTypes = await response.json();
-                console.log('Document Types:', documentTypes)
                 // Filter document types where the alias starts with "mcps"
                 this._filteredDocumentTypes = documentTypes
                     .filter((doc: any) => doc.alias?.toLowerCase().startsWith("mcps"))
@@ -95,7 +94,6 @@ export class McpsManageDashboardElement extends UmbLitElement {
                             name: prop.name
                         })) ?? [],
                     }));
-                console.log('Filtered Document Types:', this._filteredDocumentTypes);
             } else {
                 console.error('Failed to fetch document types:', response.statusText);
             }
@@ -180,9 +178,7 @@ export class McpsManageDashboardElement extends UmbLitElement {
         modalContext
             ?.onSubmit()
             .then((value) => {
-                console.log(value.selection)
                 this._dataTypeId = value.selection[0]!.toString();
-                /*this._selectedDatatype = value.selection*/
                 var dt = value.selection[0]!.toString();
                 this.#datatypeRepository.requestByUnique(dt)
                     .then((value2) => {

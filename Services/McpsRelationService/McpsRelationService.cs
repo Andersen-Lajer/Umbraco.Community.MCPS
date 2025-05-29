@@ -2,20 +2,18 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Umbraco.Cms.Core.Models;
-using Umbraco.Community.MCPS.Helpers;
 using Umbraco.Community.MCPS.Models;
 using Umbraco.Community.MCPS.Repositories;
 
-namespace Umbraco.Community.MCPS.Services.McpsRelationService;
+namespace Umbraco.Community.MCPS.Services;
 
-public class McpsRelationService(IMcpsDatabaseRepository _repository, /*IContentTypeService _contentTypeService,*/ ILogger<McpsRelationService> _logger) : IMcpsRelationService
+public class McpsRelationService(IMcpsDatabaseRepository repository, ILogger<McpsRelationService> logger) : IMcpsRelationService
 {
     public int UpdateContentRelations(IContent content, List<PropagationSetting> propagationSettings)
     {
-        _logger.LogInformation("Calling: McpsRelationService.UpdateContentRelations({Guid})", content.Key);
+        logger.LogInformation("Calling: McpsRelationService.UpdateContentRelations({Guid})", content.Key);
 
         int positionCount = 0;
-
         var properties = content.Properties.Where(x => propagationSettings.Where(y => y.PropertyAlias == x.Alias).Any()).ToList();
 
         foreach (var property in content.Properties)
@@ -29,24 +27,10 @@ public class McpsRelationService(IMcpsDatabaseRepository _repository, /*IContent
                 default:
                     break;
             }
-
-
         }
-        _logger.LogInformation("Returning: McpsRelationService.UpdateContentRelations({Guid})", content.Key);
-        _repository.RemoveUnusedRelations(content.Key, positionCount);
+        logger.LogInformation("Returning: McpsRelationService.UpdateContentRelations({Guid})", content.Key);
+        repository.RemoveUnusedRelations(content.Key, positionCount);
         return positionCount;
-    }
-
-    //NOTE: Probably private
-    public bool UpdateRelation(int positionId, PropagationSetting pageSetting)
-    {
-        throw new NotImplementedException();
-    }
-
-    //NOTE: Probably private
-    public bool DeleteRelation(int relationId)
-    {
-        throw new NotImplementedException();
     }
 
     private int UpdateBlockGridRelations(IProperty property, List<PropagationSetting> propagationSettings, Guid contentGuid, int positionCount)
@@ -62,7 +46,6 @@ public class McpsRelationService(IMcpsDatabaseRepository _repository, /*IContent
             {
                 var tokenKey = token.Value<string>("contentKey");
                 var blockItemData = blockValue.ContentData.Where(x => x.Key.ToString() == tokenKey).FirstOrDefault();
-
                 if (blockItemData is null || blockItemData.Values is not List<McpsBlockPropertyValue> blockValues) { continue; }
 
                 var propagationProperty = blockValues.Where(x => propagationSettings.Where(y => y.PropertyAlias == x.Alias).Any()).FirstOrDefault();
@@ -72,15 +55,13 @@ public class McpsRelationService(IMcpsDatabaseRepository _repository, /*IContent
 
                 if (setting is not null && setting.Id is int settingId)
                 {
-                    var referenceId = _repository.CreatePropagationRelation(new() { PageId = contentGuid, PositionId = positionCount, PropagationSettingId = settingId, Value = propagationProperty.Value });
+                    var referenceId = repository.CreatePropagationRelation(new() { PageId = contentGuid, PositionId = positionCount, PropagationSettingId = settingId, Value = propagationProperty.Value });
 
-                    blockItemData.UpdateValues(new() { { ConstStrings.ReferenceIdAlias, $"{referenceId}" } });
+                    blockItemData.UpdateValues(new() { { McpsConstants.ReferenceIdAlias, $"{referenceId}" } });
                 }
                 positionCount++;
             }
-
             value.EditedValue = JsonConvert.SerializeObject(blockValue);
-
         }
         return positionCount;
     }

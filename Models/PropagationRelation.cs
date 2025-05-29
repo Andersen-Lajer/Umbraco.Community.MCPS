@@ -30,7 +30,6 @@ public class PropagationRelation
         ReferenceId = propagationRelationsSchema.ReferenceId;
         PropagationSettingId = propagationRelationsSchema.PropagationSettingId;
     }
-    
     public int? Id { get; set; }
     public Guid? PageId { get; set; }
     public int? PositionId { get; set; }

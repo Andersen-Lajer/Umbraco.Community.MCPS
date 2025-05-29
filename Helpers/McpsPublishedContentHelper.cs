@@ -9,7 +9,6 @@ namespace Umbraco.Community.MCPS.Helpers
         {
             return propagationPriority switch
             {
-                // NOTE : A bit hacky, this should probably be refactored to use a more generic approach
                 [PropagationRank.Relevant, PropagationRank.Newest, PropagationRank.MostPopular] => [.. content.OrderByDescending(x => x.UpdateDate)], //NOTE : This is a placeholder for the actual implementation of relevance sorting.
                 [PropagationRank.Relevant, PropagationRank.MostPopular, PropagationRank.Newest] => [.. content.OrderByDescending(x => x.UpdateDate)],
                 [PropagationRank.Newest, PropagationRank.Relevant, PropagationRank.MostPopular] => throw new NotImplementedException(),

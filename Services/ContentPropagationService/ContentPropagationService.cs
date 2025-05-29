@@ -1,37 +1,31 @@
 ﻿using Microsoft.Extensions.Logging;
 using Umbraco.Cms.Core.Models;
-using Umbraco.Cms.Core.Services;
 using Umbraco.Community.MCPS.Models;
 using Umbraco.Community.MCPS.Models.Enums;
 using Umbraco.Community.MCPS.Models.Schemas;
 using Umbraco.Community.MCPS.Repositories;
-using Umbraco.Community.MCPS.Services.McpsRelationService;
 
 namespace Umbraco.Community.MCPS.Services;
 
 class ContentPropagationService(
-    IMcpsDatabaseRepository _repository,
-    IMcpsRelationService _relationService,
-    IMcpsPropagationService _propagationService,
-    IDataTypeService _dataTypeService,
-    ILogger<ContentPropagationService> _logger) : IContentPropagationService
-
+    IMcpsDatabaseRepository repository,
+    IMcpsRelationService relationService,
+    IMcpsPropagationService propagationService,
+    ILogger<ContentPropagationService> logger) : IContentPropagationService
 {
-
     public bool PropagateSavedContent(IContent savedEntity, List<PropagationSetting> propagationSettings)
     {
         if (!savedEntity.Properties.Where(x => x.Values.Count != 0).Any())
         {
-            _logger.LogInformation("No properties to propagate");
+            logger.LogInformation("No properties to propagate");
             return false;
         }
 
-        var positionCount = _relationService.UpdateContentRelations(savedEntity, propagationSettings);
+        var positionCount = relationService.UpdateContentRelations(savedEntity, propagationSettings);
         foreach (var setting in propagationSettings)
         {
             PropagateSetting(setting);
         }
-
 
         return true;
     }
@@ -40,13 +34,13 @@ class ContentPropagationService(
     {
         try
         {
-            _logger.LogInformation("Calling CreatePropagationSetting from ContentPropagationService");
-            _repository.CreatePropagationSetting(setting);
+            logger.LogInformation("Calling CreatePropagationSetting from ContentPropagationService");
+            repository.CreatePropagationSetting(setting);
             return true;
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e, e.Message);
+            logger.LogError(ex, "Error in CreatePropagationSetting");
             return false;
         }
     }
@@ -75,15 +69,13 @@ class ContentPropagationService(
     {
         if (setting.Id is not int settingId) { return false; }
 
-        var relations = _repository.GetPropagationRelations(settingId);
+        var relations = repository.GetPropagationRelations(settingId);
 
         Dictionary<Guid, Dictionary<string, List<PropagationRelationsSchema>>> pagedRelations = [];
 
         Dictionary<string, int> valueCounts = [];
 
 
-
-        //NOTE: Value count is page wide here, needs to be fixed
         foreach (var relation in relations)
         {
             relation.Value ??= "NULL";
@@ -123,19 +115,17 @@ class ContentPropagationService(
 
         foreach (var value in valueCounts)
         {
-
-
-            var references = _propagationService.GetContentReferences(0, value.Value, value.Key, setting, setting.PropertyAlias);
+            var references = propagationService.GetContentReferences(0, value.Value, value.Key, setting, setting.PropertyAlias);
             if (references.Count == 0)
             {
-                _logger.LogWarning("No references found for value: {value}", value.Key);
+                logger.LogWarning("No references found for value: {value}", value.Key);
                 continue;
             }
 
             var pagedValues = pagedRelations.Values.Where(x => x.ContainsKey(value.Key)).Select(y => y[value.Key]);
             foreach (var pagedValue in pagedValues)
             {
-                List<Guid> tmpReferences = new(references);
+                List<Guid> tmpReferences = [.. references];
                 foreach (var relation in pagedValue)
                 {
                     if (tmpReferences.Count == 0) { break; }
@@ -145,7 +135,7 @@ class ContentPropagationService(
                 updatedRelations.AddRange(pagedValue);
             }
         }
-        _repository.UpdatePropagationRelations(updatedRelations);
+        repository.UpdatePropagationRelations(updatedRelations);
 
         return true;
     }

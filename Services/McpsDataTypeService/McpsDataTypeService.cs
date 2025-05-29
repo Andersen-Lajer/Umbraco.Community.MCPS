@@ -4,20 +4,15 @@ using Umbraco.Cms.Core.Serialization;
 using Umbraco.Cms.Core.Services;
 using Umbraco.Cms.Core.Strings;
 using Umbraco.Community.MCPS.NotificationHandlers;
-using System.Text;
-using Microsoft.AspNetCore.Hosting;
-using Umbraco.Cms.Core.Media.EmbedProviders;
-
 
 namespace Umbraco.Community.MCPS.Services;
-
 
 class McpsDataTypeService(
     IDataTypeService dataTypeService,
     IConfigurationEditorJsonSerializer jsonEditor,
-    ILogger<McpsUmbracoStartingNotification> _logger,
-    IContentTypeService _contentTypeService,
-    IShortStringHelper _shortStringHelper
+    ILogger<McpsUmbracoStartingNotification> logger,
+    IContentTypeService contentTypeService,
+    IShortStringHelper shortStringHelper
     ) : IMcpsDataTypeService
 {
     public async Task<IDataType> CreateMcpsDataType(string? dataTypePrefix, string dataTypeName, Dictionary<string, object> configurationData, Guid userId)
@@ -32,7 +27,7 @@ class McpsDataTypeService(
         var mcpsDataType = await dataTypeService.GetAsync(mcpsDatatypeName);
         if (mcpsDataType is not null)
         {
-            _logger.LogInformation("McpsDataType already exists");
+            logger.LogInformation("McpsDataType already exists");
             return mcpsDataType;
         }
 
@@ -44,20 +39,17 @@ class McpsDataTypeService(
             ConfigurationData = configurationData,
             Name = mcpsDatatypeName
         };
-
         var createdDt = await dataTypeService.CreateAsync(dt, userId);
         var result = createdDt.Result;
         return result;
     }
 
-
     public async Task<ContentType> CreateMcpsContentType(Guid userId, PropertyType? propertyType, string name, string alias, string containerName, List<IContentTypeComposition>? compositions)
     {
-
         PropertyGroup propertyGroup = new(false) { Alias = "content", Name = "Content", Type = PropertyGroupType.Tab };
         if (propertyGroup is null)
         {
-            _logger.LogError("Failed to create PropertyGroup");
+            logger.LogError("Failed to create PropertyGroup");
             throw new Exception("Error in CreateMcpsContentType");
         }
 
@@ -66,7 +58,7 @@ class McpsDataTypeService(
             propertyGroup.PropertyTypes?.Add(propertyType);
         }
 
-        ContentType contentType = new(_shortStringHelper, -1)
+        ContentType contentType = new(shortStringHelper, -1)
         {
             Alias = alias,
             Icon = "icon-clothes-hanger color-deep-purple",
@@ -81,29 +73,28 @@ class McpsDataTypeService(
                 contentType.AddContentType(composition);
             }
         }
-        var container = _contentTypeService.GetContainers(containerName, 1)?.FirstOrDefault();
+        var container = contentTypeService.GetContainers(containerName, 1)?.FirstOrDefault();
 
         if (container is null)
         {
-            var attempt = _contentTypeService.CreateContainer(-1, Guid.NewGuid(), containerName);
+            var attempt = contentTypeService.CreateContainer(-1, Guid.NewGuid(), containerName);
 
             container = attempt.Result?.Entity;
             if (container is not null)
             {
-                _contentTypeService.SaveContainer(container);
+                contentTypeService.SaveContainer(container);
             }
         }
         if (container is not null)
         {
             contentType.ParentId = container.Id;
         }
-        var existingComposition = _contentTypeService.Get(contentType.Alias);
+        var existingComposition = contentTypeService.Get(contentType.Alias);
 
         if (existingComposition is null)
         {
-            await _contentTypeService.CreateAsync(contentType, userId);
+            await contentTypeService.CreateAsync(contentType, userId);
         }
-
         return contentType;
     }
 }

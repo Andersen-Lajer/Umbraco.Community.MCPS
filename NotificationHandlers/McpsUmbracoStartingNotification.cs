@@ -1,21 +1,20 @@
-using Umbraco.Cms.Core.Events;
-using Umbraco.Cms.Core.Notifications;
 using Microsoft.Extensions.Logging;
-using Umbraco.Community.MCPS.Services;
-using Umbraco.Cms.Core.Strings;
-using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Events;
 using Umbraco.Cms.Core.Models;
-using Umbraco.Community.MCPS.Helpers;
-using Umbraco.Cms.Infrastructure.Persistence;
 using Umbraco.Cms.Core.Models.Membership;
+using Umbraco.Cms.Core.Notifications;
+using Umbraco.Cms.Core.Services;
+using Umbraco.Cms.Core.Strings;
+using Umbraco.Cms.Infrastructure.Persistence;
+using Umbraco.Community.MCPS.Services;
 
 namespace Umbraco.Community.MCPS.NotificationHandlers;
 
 public class McpsUmbracoStartingNotification(
     ILogger<UmbracoApplicationStartedNotification> _logger,
-    IShortStringHelper _shortStringHelper,
+    IShortStringHelper shortStringHelper,
     IDataTypeService dataTypeService,
-    IMcpsDataTypeService _mcpsDataTypeService,
+    IMcpsDataTypeService mcpsDataTypeService,
     IUserService userService,
     IUmbracoDatabaseFactory umbracodatabaseFactory) : INotificationHandler<UmbracoApplicationStartedNotification>
 {
@@ -23,13 +22,8 @@ public class McpsUmbracoStartingNotification(
     {
         _logger.LogInformation("Mcps Umbraco Started Notification");
 
-        // NOTE: Consider what user GUID should be used here
-        Guid userId = new();
-
-        if (!string.IsNullOrWhiteSpace(umbracodatabaseFactory.ConnectionString) && userService.GetUserById(-1) is IMembershipUser adminUser)
+        if (!string.IsNullOrWhiteSpace(umbracodatabaseFactory.ConnectionString) && userService.GetUserById(-1) is IMembershipUser user)
         {
-            userId = adminUser.Key;
-
             try
             {
                 var dropdownConfig = new Dictionary<string, object>
@@ -44,19 +38,19 @@ public class McpsUmbracoStartingNotification(
                     { "multiple", false }
                 };
 
-                var dt = await _mcpsDataTypeService.CreateMcpsDataType("Food", "Dropdown", dropdownConfig, userId);
+                var dt = await mcpsDataTypeService.CreateMcpsDataType("Food", "Dropdown", dropdownConfig, user.Key);
 
                 var stringLabelDataType = await dataTypeService.GetAsync("Label (string)");
                 if (stringLabelDataType is not null)
                 {
-                    var dataPropertyType = new PropertyType(_shortStringHelper, stringLabelDataType) { Alias = ConstStrings.ReferenceIdAlias, Name = ConstStrings.ReferenceIdName };
-                    var contentComposition = await _mcpsDataTypeService.CreateMcpsContentType(userId, dataPropertyType, ConstStrings.PascalPrefix + " " + ConstStrings.ReferenceIdName, ConstStrings.CamelPrefix + ConstStrings.ReferenceIdAlias, ConstStrings.CompositionContainerName, null);
+                    var dataPropertyType = new PropertyType(shortStringHelper, stringLabelDataType) { Alias = McpsConstants.ReferenceIdAlias, Name = McpsConstants.ReferenceIdName };
+                    var contentComposition = await mcpsDataTypeService.CreateMcpsContentType(user.Key, dataPropertyType, McpsConstants.PascalPrefix + " " + McpsConstants.ReferenceIdName, McpsConstants.CamelPrefix + McpsConstants.ReferenceIdAlias, McpsConstants.CompositionContainerName, null);
                 }
 
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
-                _logger.LogError(e.Message);
+                _logger.LogError(ex, "Error in McpsUmbracoStartingNotification.Handle");
             }
         }
     }

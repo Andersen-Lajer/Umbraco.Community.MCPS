@@ -5,7 +5,6 @@ namespace Umbraco.Community.MCPS.Services;
 
 public interface IContentPropagationService
 {
-    public bool PropagateSavedContent(IContent savedEntity, List<PropagationSetting> pageSettings);
-
-    public bool CreatePropagationSetting(PropagationSetting setting);
+    bool PropagateSavedContent(IContent savedEntity, List<PropagationSetting> pageSettings);
+    bool CreatePropagationSetting(PropagationSetting setting);
 }

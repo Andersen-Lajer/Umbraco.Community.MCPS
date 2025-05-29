@@ -1,34 +1,34 @@
 ﻿using Microsoft.Extensions.Logging;
-using Umbraco.Cms.Core.Persistence;
 using Umbraco.Community.MCPS.Mappers;
 using Umbraco.Community.MCPS.Models;
 using Umbraco.Community.MCPS.Repositories;
 
-namespace Umbraco.Community.MCPS.Services.McpsPropagationSettingService;
+namespace Umbraco.Community.MCPS.Services;
 
 public class McpsPropagationSettingService(
-    IMcpsDatabaseRepository _repository,
-    ILogger<IMcpsPropagationSettingService> _logger) : IMcpsPropagationSettingService
+    IMcpsDatabaseRepository repository,
+    ILogger<IMcpsPropagationSettingService> logger) : IMcpsPropagationSettingService
 {
-
-    private readonly McpsServiceModelMapper serviceModelMapper = new(_repository);
+    private readonly McpsServiceModelMapper serviceModelMapper = new(repository);
 
     public PropagationSetting CreatePropagationSetting(PropagationSetting propagationSetting)
     {
         try
         {
-            return serviceModelMapper.MapToServiceModel(_repository.CreatePropagationSetting(propagationSetting));
+            return serviceModelMapper.MapToServiceModel(repository.CreatePropagationSetting(propagationSetting));
         }
-        catch (Exception e)
+        catch (Exception ex)
         {
-            _logger.LogError(e, e.Message);
+            logger.LogError(ex, "Error in CreatePropagationSetting");
             throw;
         }
     }
+
     public PropagationSetting UpdatePropagationSetting(PropagationSetting propagationSetting)
     {
         throw new NotImplementedException();
     }
+
     public bool DeletePropagationSetting(PropagationSetting propagationSetting)
     {
         throw new NotImplementedException();
@@ -37,9 +37,7 @@ public class McpsPropagationSettingService(
     public List<PropagationSetting> GetPropagationSettingsByDocumentType(string documentType)
     {
         List<PropagationSetting> propagationSettings = [];
-
-        var propagationSettingSchemas = _repository.GetPropagationSettingsByDocumentType(documentType);
-
+        var propagationSettingSchemas = repository.GetPropagationSettingsByDocumentType(documentType);
         propagationSettings.AddRange(propagationSettingSchemas.Select(serviceModelMapper.MapToServiceModel));
 
         return propagationSettings;
@@ -48,12 +46,9 @@ public class McpsPropagationSettingService(
     public List<PropagationSetting> GetAll()
     {
         List<PropagationSetting> propagationSettings = [];
-
-        var propagationSettingSchemas = _repository.GetAllPropagationSettings();
-
+        var propagationSettingSchemas = repository.GetAllPropagationSettings();
         propagationSettings.AddRange(propagationSettingSchemas.Select(serviceModelMapper.MapToServiceModel));
 
         return propagationSettings;
     }
-
 }
